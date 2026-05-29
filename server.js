@@ -17,11 +17,13 @@ const io = new Server(httpServer, {
 let state = {
   currentSlide: 0,
   simData: {
-    inverterFreq: 30,
+    inverterFreq: 60,
     inverterRunning: false,
-    maintenanceStep: 0,
     thermalMode: false,
-    inspected: []
+    inspected: [],
+    found: [],
+    selectedId: null,
+    scan: { x: 0.5, y: 0.5, active: false }
   }
 }
 

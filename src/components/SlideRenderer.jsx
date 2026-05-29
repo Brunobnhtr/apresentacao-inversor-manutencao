@@ -2,360 +2,277 @@ import { motion } from 'framer-motion'
 import InverterSim from './simulations/InverterSim'
 import MaintenanceSim from './simulations/MaintenanceSim'
 
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -24 },
-}
-const stagger = { animate: { transition: { staggerChildren: 0.08 } } }
+// Conteúdo dos slides — TRANSPARENTE, flutua sobre a cena de fundo.
+const fadeUp = { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 } }
+const stagger = { animate: { transition: { staggerChildren: 0.07 } } }
 const item = { initial: { opacity: 0, x: -16 }, animate: { opacity: 1, x: 0 } }
 
 export default function SlideRenderer({ slide, isAdmin, simData, onSimUpdate }) {
   if (!slide) return null
-
+  const props = { slide, isAdmin, simData, onUpdate: onSimUpdate }
   switch (slide.type) {
-    case 'title':
-      return <TitleSlide slide={slide} />
-    case 'definition':
-      return <DefinitionSlide slide={slide} />
-    case 'diagram':
-      return <DiagramSlide slide={slide} />
-    case 'simulation':
-      return (
-        <SimSlide slide={slide} isAdmin={isAdmin} simData={simData} onUpdate={onSimUpdate} />
-      )
-    case 'applications':
-      return <ApplicationsSlide slide={slide} />
-    case 'energy':
-      return <EnergySlide slide={slide} />
-    case 'impact':
-      return <ImpactSlide slide={slide} />
-    case 'types':
-      return <TypesSlide slide={slide} />
-    case 'importance':
-      return <ImportanceSlide slide={slide} />
-    case 'tools':
-      return <ToolsSlide slide={slide} />
-    case 'safety':
-      return <SafetySlide slide={slide} />
-    case 'roi':
-      return <RoiSlide slide={slide} />
-    default:
-      return <div className="p-8 text-white">{slide.title}</div>
+    case 'title': return <TitleSlide {...props} />
+    case 'definition': return <DefinitionSlide {...props} />
+    case 'diagram': return <DiagramSlide {...props} />
+    case 'simulation': return <SimSlide {...props} />
+    case 'overview': return <OverviewSlide {...props} />
+    case 'app': return <AppSlide {...props} />
+    case 'affinity': return <AffinitySlide {...props} />
+    case 'impact': return <ImpactSlide {...props} />
+    case 'types': return <TypesSlide {...props} />
+    case 'importance': return <ImportanceSlide {...props} />
+    case 'tools': return <ToolsSlide {...props} />
+    case 'safety': return <SafetySlide {...props} />
+    case 'roi': return <RoiSlide {...props} />
+    default: return <div className="p-8 text-white">{slide.title}</div>
   }
 }
 
-function Particles({ color = '#00d4ff', count = 12 }) {
+function Badge({ slide }) {
+  const c = slide.accent
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full opacity-20"
-          style={{
-            width: `${4 + Math.random() * 8}px`,
-            height: `${4 + Math.random() * 8}px`,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            background: color,
-            animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
-            animationDelay: `${Math.random() * 3}s`
-          }}
-        />
-      ))}
+    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-industrial tracking-widest uppercase mb-3"
+      style={{ background: `${c}22`, border: `1px solid ${c}55`, color: c, backdropFilter: 'blur(4px)' }}>
+      {slide.section === 'inversor' ? '⚡ Inversor de Frequência' : '🔧 Manutenção Elétrica'}
     </div>
   )
 }
 
-function SectionBadge({ section, accent }) {
+function Title({ children, slide }) {
   return (
-    <div
-      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-industrial tracking-widest uppercase mb-4"
-      style={{ background: `${accent}22`, border: `1px solid ${accent}44`, color: accent }}
-    >
-      {section === 'inversor' ? '⚡ Inversor de Frequência' : '🔧 Manutenção Elétrica'}
+    <h2 className="text-3xl md:text-4xl font-industrial font-bold text-white"
+      style={{ textShadow: `0 2px 20px rgba(0,0,0,0.9), 0 0 30px ${slide.accent}44` }}>
+      {children}
+    </h2>
+  )
+}
+
+// Painel à esquerda; cena visível à direita
+function LeftPanel({ children }) {
+  return (
+    <div className="h-full w-full flex items-center p-6 md:p-10">
+      <div className="w-full max-w-[640px]">{children}</div>
     </div>
   )
 }
 
+// ---------------- TÍTULO ----------------
 function TitleSlide({ slide }) {
-  const isInversor = slide.section === 'inversor'
-  const bg = isInversor
-    ? 'radial-gradient(ellipse at 30% 50%, rgba(0,80,160,0.4) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(0,50,100,0.3) 0%, transparent 60%)'
-    : 'radial-gradient(ellipse at 30% 50%, rgba(160,40,0,0.4) 0%, transparent 60%), radial-gradient(ellipse at 70% 50%, rgba(100,30,0,0.3) 0%, transparent 60%)'
-
   return (
-    <div className="h-full w-full grid-bg flex flex-col items-center justify-center relative overflow-hidden" style={{ background: '#050510' }}>
-      <div className="absolute inset-0" style={{ background: bg }} />
-      <Particles color={slide.accent} count={20} />
-
-      <motion.div className="relative z-10 text-center max-w-4xl px-8" {...fadeUp}>
-        <motion.div
-          className="text-7xl mb-6"
-          animate={{ rotate: [0, 5, -5, 0] }}
-          transition={{ duration: 4, repeat: Infinity }}
-        >
-          {isInversor ? '⚡' : '🔧'}
+    <div className="h-full w-full flex flex-col items-center justify-center text-center px-8 relative">
+      <motion.div {...fadeUp} transition={{ duration: 0.6 }}>
+        <motion.div className="text-7xl mb-4" animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>
+          {slide.section === 'inversor' ? '⚡' : '🔧'}
         </motion.div>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h1 className="text-5xl md:text-6xl font-industrial font-bold text-white leading-tight mb-4"
-          style={{ textShadow: `0 0 40px ${slide.accent}66` }}>
+        <Badge slide={slide} />
+        <h1 className="text-5xl md:text-6xl font-industrial font-bold text-white leading-tight mb-3"
+          style={{ textShadow: `0 2px 30px rgba(0,0,0,0.9), 0 0 50px ${slide.accent}66` }}>
           {slide.title}
         </h1>
-        <p className="text-xl text-gray-400 mb-8">{slide.subtitle}</p>
-        <div className="text-sm text-gray-600 font-industrial tracking-widest uppercase">{slide.meta}</div>
-
-        {/* Decorative line */}
-        <div className="mt-8 flex items-center gap-4">
-          <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, ${slide.accent})` }} />
-          <div className="w-2 h-2 rounded-full" style={{ background: slide.accent, boxShadow: `0 0 8px ${slide.accent}` }} />
-          <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, ${slide.accent})` }} />
+        <p className="text-xl text-gray-300 mb-6" style={{ textShadow: '0 2px 12px rgba(0,0,0,0.9)' }}>{slide.subtitle}</p>
+        <div className="text-sm text-gray-400 font-industrial tracking-widest uppercase">{slide.meta}</div>
+        <div className="mt-6 flex items-center gap-3 justify-center">
+          <div className="w-24 h-px" style={{ background: `linear-gradient(to right, transparent, ${slide.accent})` }} />
+          <div className="w-2 h-2 rounded-full" style={{ background: slide.accent, boxShadow: `0 0 10px ${slide.accent}` }} />
+          <div className="w-24 h-px" style={{ background: `linear-gradient(to left, transparent, ${slide.accent})` }} />
         </div>
       </motion.div>
     </div>
   )
 }
 
+// ---------------- DEFINIÇÃO ----------------
 function DefinitionSlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
+    <LeftPanel>
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <motion.div className="glass rounded-2xl p-5 mt-4 glow-blue" {...fadeUp} transition={{ delay: 0.1 }}>
+        <p className="text-base text-gray-100 leading-relaxed">{slide.definition}</p>
       </motion.div>
-
-      <motion.div className="glass rounded-2xl p-6 glow-blue" {...fadeUp} transition={{ delay: 0.1 }}>
-        <p className="text-lg text-gray-200 leading-relaxed">{slide.definition}</p>
-      </motion.div>
-
-      <div className="grid grid-cols-2 gap-4 flex-1">
-        <motion.div className="glass rounded-2xl p-5" {...fadeUp} transition={{ delay: 0.2 }}>
-          <div className="text-xs text-gray-500 uppercase tracking-widest font-industrial mb-3">Também conhecido como</div>
-          {slide.aliases.map((a, i) => (
-            <div key={i} className="flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0">
-              <div className="w-1.5 h-1.5 rounded-full bg-electric flex-shrink-0" />
-              <span className="text-gray-300 font-industrial">{a}</span>
-            </div>
+      <motion.div className="glass rounded-2xl p-5 mt-4" {...fadeUp} transition={{ delay: 0.2 }}>
+        <motion.ul variants={stagger} initial="initial" animate="animate" className="space-y-2.5">
+          {slide.bullets.map((b, i) => (
+            <motion.li key={i} variants={item} className="flex items-start gap-3">
+              <span className="text-xl flex-shrink-0">{b.icon}</span>
+              <span className="text-sm text-gray-200">{b.text}</span>
+            </motion.li>
           ))}
-        </motion.div>
-
-        <motion.div className="glass rounded-2xl p-5" {...fadeUp} transition={{ delay: 0.3 }}>
-          <div className="text-xs text-gray-500 uppercase tracking-widest font-industrial mb-3">Características</div>
-          <motion.ul variants={stagger} initial="initial" animate="animate" className="space-y-2">
-            {slide.bullets.map((b, i) => (
-              <motion.li key={i} variants={item} className="flex items-start gap-2">
-                <span className="text-lg flex-shrink-0">{b.icon}</span>
-                <span className="text-sm text-gray-300">{b.text}</span>
-              </motion.li>
-            ))}
-          </motion.ul>
-        </motion.div>
-      </div>
-    </div>
+        </motion.ul>
+      </motion.div>
+      <motion.div className="flex flex-wrap gap-2 mt-4" {...fadeUp} transition={{ delay: 0.3 }}>
+        {slide.aliases.map((a, i) => (
+          <span key={i} className="text-xs glass px-3 py-1.5 rounded-full font-industrial text-electric">{a}</span>
+        ))}
+      </motion.div>
+    </LeftPanel>
   )
 }
 
+// ---------------- DIAGRAMA ----------------
 function DiagramSlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
-      </motion.div>
-
-      {/* Block diagram */}
-      <div className="flex items-center gap-2 flex-wrap justify-center">
+    <div className="h-full w-full flex flex-col justify-center p-6 md:p-10 gap-5">
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <div className="flex items-center gap-2 flex-wrap">
         {slide.stages.map((s, i) => (
-          <motion.div key={i} className="flex items-center gap-2" {...fadeUp} transition={{ delay: i * 0.1 }}>
-            <div
-              className="glass rounded-xl p-4 text-center min-w-[110px]"
-              style={{ borderColor: `${s.color}44`, boxShadow: `0 0 20px ${s.color}22` }}
-            >
+          <motion.div key={i} className="flex items-center gap-2" {...fadeUp} transition={{ delay: i * 0.12 }}>
+            <div className="glass rounded-xl p-3 text-center min-w-[105px]" style={{ borderColor: `${s.color}55`, boxShadow: `0 0 20px ${s.color}22` }}>
               <div className="text-3xl mb-1">{s.icon}</div>
               <div className="text-sm font-industrial font-bold text-white">{s.label}</div>
-              <div className="text-xs text-gray-500 mt-1">{s.desc}</div>
+              <div className="text-xs text-gray-400 mt-0.5">{s.desc}</div>
             </div>
             {i < slide.stages.length - 1 && (
-              <motion.div
-                className="flex flex-col items-center gap-0.5"
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              >
-                <div className="w-8 h-0.5" style={{ background: s.color }} />
-                <div className="text-xs" style={{ color: s.color }}>→</div>
-              </motion.div>
+              <motion.span className="text-lg" style={{ color: s.color }} animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }}>→</motion.span>
             )}
           </motion.div>
         ))}
       </div>
-
-      <motion.div className="glass rounded-2xl p-5 text-center" {...fadeUp} transition={{ delay: 0.5 }}>
-        <div className="text-xs text-gray-500 uppercase tracking-widest font-industrial mb-2">Princípio Fundamental</div>
-        <div className="text-xl font-industrial text-electric font-bold mb-2">{slide.principle}</div>
-        <div className="text-sm text-gray-400">Ns = velocidade síncrona (RPM) · f = frequência (Hz) · p = número de polos</div>
-      </motion.div>
-
-      {/* PWM explanation */}
-      <motion.div className="glass rounded-2xl p-4" {...fadeUp} transition={{ delay: 0.6 }}>
-        <div className="text-xs text-gray-500 uppercase tracking-widest font-industrial mb-3">Sinal PWM — Modulação por Largura de Pulso</div>
-        <div className="flex gap-2 items-end h-10">
-          {[1,0,1,1,0,1,0,0,1,1,1,0,1,0,1,0,0,1,1,0,1,1,0,0,1].map((v, i) => (
-            <div key={i} className="flex-1 rounded-sm" style={{
-              height: v ? '100%' : '30%',
-              background: v ? '#00d4ff' : 'rgba(0,212,255,0.15)',
-              transition: 'all 0.3s'
-            }} />
-          ))}
-        </div>
+      <motion.div className="glass rounded-2xl p-5 max-w-2xl" {...fadeUp} transition={{ delay: 0.6 }}>
+        <div className="text-3xl font-industrial font-bold text-electric mb-1" style={{ filter: 'drop-shadow(0 0 8px #00d4ff66)' }}>{slide.principle}</div>
+        <div className="text-sm text-gray-300">{slide.principleNote}</div>
+        <div className="text-xs text-gray-500 mt-1">Ns = velocidade (RPM) · f = frequência (Hz) · p = nº de polos</div>
       </motion.div>
     </div>
   )
 }
 
+// ---------------- SIMULAÇÃO ----------------
 function SimSlide({ slide, isAdmin, simData, onUpdate }) {
   return (
-    <div className="h-full w-full flex flex-col grid-bg overflow-hidden">
-      <div className="px-6 pt-4 pb-2 flex items-center gap-4 flex-shrink-0">
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-2xl font-industrial font-bold text-white">{slide.title}</h2>
+    <div className="h-full w-full flex flex-col overflow-hidden">
+      <div className="px-6 pt-3 flex-shrink-0">
+        <Badge slide={slide} />
+        <h2 className="text-2xl font-industrial font-bold text-white inline-block ml-2" style={{ textShadow: '0 2px 12px #000' }}>{slide.title}</h2>
       </div>
       <div className="flex-1 overflow-hidden">
         {slide.simType === 'inverter'
           ? <InverterSim isAdmin={isAdmin} simData={simData} onUpdate={onUpdate} />
-          : <MaintenanceSim isAdmin={isAdmin} simData={simData} onUpdate={onUpdate} />
-        }
+          : <MaintenanceSim isAdmin={isAdmin} simData={simData} onUpdate={onUpdate} />}
       </div>
     </div>
   )
 }
 
-function ApplicationsSlide({ slide }) {
+// ---------------- OVERVIEW (menu de setores) ----------------
+function OverviewSlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
+    <div className="h-full w-full flex flex-col items-center justify-center p-8 text-center">
       <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
+        <Badge slide={slide} />
+        <h2 className="text-4xl font-industrial font-bold text-white" style={{ textShadow: '0 2px 20px #000' }}>{slide.title}</h2>
+        <p className="text-gray-300 mt-1" style={{ textShadow: '0 2px 10px #000' }}>{slide.subtitle}</p>
       </motion.div>
+      <motion.div className="grid grid-cols-3 gap-3 mt-7 max-w-3xl" variants={stagger} initial="initial" animate="animate">
+        {slide.sectors.map((s, i) => (
+          <motion.div key={i} variants={item} className="glass rounded-xl p-4 flex flex-col items-center gap-1.5 hover:border-electric/50 transition-colors">
+            <div className="text-4xl">{s.icon}</div>
+            <div className="font-industrial font-bold text-white text-sm">{s.name}</div>
+            <div className="text-xs text-neon-green font-industrial">{s.tag}</div>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  )
+}
 
-      <div className="grid grid-cols-3 gap-4 flex-1">
-        {slide.apps.map((app, i) => (
-          <motion.div
-            key={i}
-            className="glass rounded-xl p-5 flex flex-col gap-3 hover:border-orange-500/40 transition-colors"
-            {...fadeUp}
-            transition={{ delay: i * 0.08 }}
-            style={{ borderColor: 'rgba(255,107,0,0.15)' }}
-          >
-            <div className="text-4xl">{app.icon}</div>
-            <div>
-              <div className="text-lg font-industrial font-bold text-white mb-1">{app.name}</div>
-              <div className="text-xs text-gray-400 leading-relaxed">{app.desc}</div>
-            </div>
-            <div className="mt-auto">
-              <div className="flex justify-between text-xs mb-1">
-                <span className="text-gray-500 font-industrial">Economia de energia</span>
-                <span className="text-neon-green font-bold font-industrial">{app.save}%</span>
-              </div>
-              <div className="h-1.5 bg-gray-800 rounded-full">
-                <motion.div
-                  className="h-1.5 rounded-full"
-                  style={{ background: 'linear-gradient(to right, #00ff88, #00d4ff)' }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${app.save}%` }}
-                  transition={{ duration: 1, delay: i * 0.1 }}
-                />
-              </div>
-            </div>
+// ---------------- APLICAÇÃO (1 setor) ----------------
+function AppSlide({ slide }) {
+  return (
+    <LeftPanel>
+      <motion.div {...fadeUp}>
+        <Badge slide={slide} />
+        <div className="flex items-center gap-3 mt-1">
+          <span className="text-5xl">{slide.icon}</span>
+          <Title slide={slide}>{slide.name}</Title>
+        </div>
+      </motion.div>
+      <motion.p className="text-base text-gray-200 mt-3" {...fadeUp} transition={{ delay: 0.1 }} style={{ textShadow: '0 2px 10px #000' }}>{slide.desc}</motion.p>
+      <motion.div className="glass rounded-2xl p-5 mt-4" {...fadeUp} transition={{ delay: 0.2 }}>
+        <motion.ul variants={stagger} initial="initial" animate="animate" className="space-y-2.5">
+          {slide.points.map((p, i) => (
+            <motion.li key={i} variants={item} className="flex items-start gap-2.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-electric mt-2 flex-shrink-0" style={{ boxShadow: '0 0 6px #00d4ff' }} />
+              <span className="text-sm text-gray-200">{p}</span>
+            </motion.li>
+          ))}
+        </motion.ul>
+      </motion.div>
+      <motion.div className="glass rounded-2xl p-4 mt-4" {...fadeUp} transition={{ delay: 0.35 }}>
+        <div className="flex justify-between text-sm mb-1.5 font-industrial">
+          <span className="text-gray-400">Economia de energia possível</span>
+          <span className="text-neon-green font-bold">{slide.save}%</span>
+        </div>
+        <div className="h-2.5 bg-gray-800 rounded-full overflow-hidden">
+          <motion.div className="h-full rounded-full" style={{ background: 'linear-gradient(to right, #00ff88, #00d4ff)' }}
+            initial={{ width: 0 }} animate={{ width: `${slide.save}%` }} transition={{ duration: 1, delay: 0.4 }} />
+        </div>
+      </motion.div>
+    </LeftPanel>
+  )
+}
+
+// ---------------- LEI DA AFINIDADE ----------------
+function AffinitySlide({ slide }) {
+  return (
+    <div className="h-full w-full flex flex-col justify-center p-6 md:p-10 gap-4">
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <motion.p className="text-base text-gray-200 max-w-2xl" {...fadeUp} transition={{ delay: 0.1 }} style={{ textShadow: '0 2px 10px #000' }}>{slide.intro}</motion.p>
+
+      <div className="grid grid-cols-3 gap-3 max-w-3xl">
+        {slide.laws.map((l, i) => (
+          <motion.div key={i} className="glass rounded-xl p-4 text-center" {...fadeUp} transition={{ delay: 0.15 + i * 0.1 }}
+            style={{ borderColor: `${l.color}55`, boxShadow: `0 0 20px ${l.color}22` }}>
+            <div className="text-xs text-gray-400 font-industrial uppercase tracking-widest">{l.name}</div>
+            <div className="text-2xl font-industrial font-bold my-1" style={{ color: l.color, filter: `drop-shadow(0 0 6px ${l.color}66)` }}>{l.formula}</div>
+            <div className="text-xs text-gray-300">a 50% da rotação<br /><b style={{ color: l.color }}>{l.at50}</b></div>
           </motion.div>
         ))}
       </div>
-    </div>
-  )
-}
 
-function EnergySlide({ slide }) {
-  return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
+      <motion.div className="glass rounded-xl p-4 max-w-3xl glow-blue" {...fadeUp} transition={{ delay: 0.5 }}>
+        <p className="text-sm text-neon-green font-industrial font-bold">{slide.key}</p>
+        <div className="flex items-end gap-2 h-16 mt-3">
+          {slide.table.map((r, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+              <span className="text-xs font-industrial text-neon-green">{r.power}%</span>
+              <motion.div className="w-full rounded-t" style={{ background: r.power > 70 ? '#ff6b00' : 'linear-gradient(to top, #00ff88, #00d4ff)' }}
+                initial={{ height: 0 }} animate={{ height: `${r.power * 0.4}px` }} transition={{ delay: 0.6 + i * 0.08 }} />
+              <span className="text-xs text-gray-500">{r.speed}%</span>
+            </div>
+          ))}
+        </div>
+        <div className="text-xs text-gray-500 text-center mt-1">velocidade → potência consumida</div>
       </motion.div>
 
-      <div className="grid grid-cols-2 gap-6 flex-1">
-        <div className="flex flex-col gap-4">
-          <motion.div className="glass rounded-2xl p-5 glow-blue" {...fadeUp} transition={{ delay: 0.1 }}>
-            <div className="text-sm text-gray-500 font-industrial uppercase tracking-widest mb-2">Lei da Afinidade</div>
-            <div className="text-2xl font-industrial font-bold text-electric">{slide.law}</div>
-          </motion.div>
-          <motion.div className="glass-orange rounded-2xl p-5 flex-1" {...fadeUp} transition={{ delay: 0.2 }}>
-            <div className="text-lg text-neon-orange font-industrial font-bold mb-4">{slide.explanation}</div>
-            <div className="space-y-2">
-              {slide.table.map((row, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-500 w-14 font-industrial">{row.speed}% vel.</span>
-                  <div className="flex-1 h-4 bg-gray-800 rounded relative overflow-hidden">
-                    <motion.div
-                      className="h-full rounded"
-                      style={{
-                        background: `linear-gradient(to right, #00ff88, ${row.power > 70 ? '#ff6b00' : '#00d4ff'})`,
-                      }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${row.power}%` }}
-                      transition={{ duration: 0.8, delay: i * 0.1 }}
-                    />
-                  </div>
-                  <span className="text-xs font-industrial text-neon-green w-10">{row.power}%</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-
-        <motion.div className="glass rounded-2xl p-5 flex flex-col justify-center items-center gap-6" {...fadeUp} transition={{ delay: 0.3 }}>
-          <div className="text-center">
-            <div className="text-8xl font-industrial font-bold text-neon-green mb-2">87%</div>
-            <div className="text-gray-400">Economia a 50% da velocidade</div>
-          </div>
-          <div className="w-full h-px bg-white/10" />
-          <div className="text-center glass-orange rounded-xl p-4 w-full">
-            <div className="text-neon-orange font-industrial font-bold text-lg">{slide.roi}</div>
-          </div>
-          <div className="text-center">
-            <div className="text-sm text-gray-500">Motor 100 cv — 8.760 h/ano</div>
-            <div className="text-2xl font-industrial font-bold text-electric mt-1">Economia: R$ 45.000/ano</div>
-          </div>
-        </motion.div>
-      </div>
+      <motion.div className="flex gap-3 max-w-3xl text-xs" {...fadeUp} transition={{ delay: 0.7 }}>
+        <span className="glass-orange rounded-lg px-3 py-2 text-orange-200 flex-1">{slide.note}</span>
+        <span className="glass rounded-lg px-3 py-2 text-electric font-industrial flex-shrink-0">{slide.example}</span>
+      </motion.div>
     </div>
   )
 }
 
+// ---------------- IMPACTO ----------------
 function ImpactSlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
-      </motion.div>
-
-      <div className="grid grid-cols-4 gap-4">
+    <div className="h-full w-full flex flex-col justify-center p-6 md:p-10 gap-4">
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <div className="grid grid-cols-4 gap-3 max-w-4xl">
         {slide.stats.map((s, i) => (
           <motion.div key={i} className="glass rounded-xl p-4 text-center" {...fadeUp} transition={{ delay: i * 0.1 }}>
-            <div className="text-3xl font-industrial font-bold text-electric mb-1">{s.value}</div>
-            <div className="text-xs text-gray-400 leading-relaxed">{s.label}</div>
+            <div className="text-3xl font-industrial font-bold text-electric mb-1" style={{ filter: 'drop-shadow(0 0 8px #00d4ff66)' }}>{s.value}</div>
+            <div className="text-xs text-gray-300">{s.label}</div>
           </motion.div>
         ))}
       </div>
-
-      <motion.div className="glass rounded-2xl p-5 flex-1" {...fadeUp} transition={{ delay: 0.4 }}>
-        <div className="text-xs text-gray-500 uppercase tracking-widest font-industrial mb-4">Benefícios do Inversor de Frequência</div>
-        <div className="grid grid-cols-2 gap-3">
+      <motion.div className="glass rounded-2xl p-5 max-w-4xl" {...fadeUp} transition={{ delay: 0.4 }}>
+        <div className="text-xs text-gray-400 uppercase tracking-widest font-industrial mb-3">Benefícios</div>
+        <div className="grid grid-cols-2 gap-2.5">
           {slide.benefits.map((b, i) => (
-            <motion.div key={i} variants={item} initial="initial" animate="animate" transition={{ delay: 0.5 + i * 0.08 }}
-              className="flex items-start gap-2">
+            <div key={i} className="flex items-start gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-electric mt-1.5 flex-shrink-0" />
-              <span className="text-sm text-gray-300">{b}</span>
-            </motion.div>
+              <span className="text-sm text-gray-200">{b}</span>
+            </div>
           ))}
         </div>
       </motion.div>
@@ -363,38 +280,26 @@ function ImpactSlide({ slide }) {
   )
 }
 
+// ---------------- TIPOS DE MANUTENÇÃO ----------------
 function TypesSlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
-      </motion.div>
-
-      <div className="grid grid-cols-3 gap-6 flex-1">
+    <div className="h-full w-full flex flex-col justify-center p-6 md:p-10 gap-5">
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <div className="grid grid-cols-3 gap-4 max-w-4xl">
         {slide.types.map((t, i) => (
-          <motion.div
-            key={i}
-            className="glass rounded-2xl p-6 flex flex-col gap-4"
-            {...fadeUp}
-            transition={{ delay: i * 0.15 }}
-            style={{ borderColor: `${t.color}33`, boxShadow: `0 0 30px ${t.color}11` }}
-          >
-            <div className="flex items-center gap-3">
+          <motion.div key={i} className="glass rounded-2xl p-5 flex flex-col gap-3" {...fadeUp} transition={{ delay: i * 0.15 }}
+            style={{ borderColor: `${t.color}55`, boxShadow: `0 0 30px ${t.color}22` }}>
+            <div className="flex items-center gap-2">
               <span className="text-3xl">{t.icon}</span>
               <div>
-                <div className="text-xl font-industrial font-bold" style={{ color: t.color }}>{t.name}</div>
-                <div className="text-xs text-gray-500 font-industrial">{t.when}</div>
+                <div className="text-lg font-industrial font-bold" style={{ color: t.color }}>{t.name}</div>
+                <div className="text-xs text-gray-400 font-industrial">{t.when}</div>
               </div>
             </div>
-            <p className="text-sm text-gray-400 leading-relaxed flex-1">{t.desc}</p>
-            <div className="flex gap-3">
-              <span className="text-xs glass px-3 py-1 rounded-full font-industrial" style={{ color: t.color, borderColor: `${t.color}33` }}>
-                {t.cost}
-              </span>
-              <span className="text-xs glass px-3 py-1 rounded-full font-industrial" style={{ color: t.color, borderColor: `${t.color}33` }}>
-                {t.risk}
-              </span>
+            <p className="text-sm text-gray-300 flex-1">{t.desc}</p>
+            <div className="flex gap-2">
+              <span className="text-xs glass px-2 py-1 rounded-full" style={{ color: t.color }}>{t.cost}</span>
+              <span className="text-xs glass px-2 py-1 rounded-full" style={{ color: t.color }}>{t.risk}</span>
             </div>
           </motion.div>
         ))}
@@ -403,37 +308,27 @@ function TypesSlide({ slide }) {
   )
 }
 
+// ---------------- IMPORTÂNCIA (riscos) ----------------
 function ImportanceSlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
-      </motion.div>
-
-      <div className="grid grid-cols-4 gap-4">
+    <div className="h-full w-full flex flex-col justify-center p-6 md:p-10 gap-4">
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <div className="grid grid-cols-4 gap-3 max-w-4xl">
         {slide.stats.map((s, i) => (
-          <motion.div key={i} className="glass rounded-xl p-4 text-center" {...fadeUp} transition={{ delay: i * 0.1 }}
-            style={{ borderColor: '#ef444433' }}>
-            <div className="text-3xl mb-2">{s.icon}</div>
+          <motion.div key={i} className="glass rounded-xl p-4 text-center" {...fadeUp} transition={{ delay: i * 0.1 }} style={{ borderColor: '#ef444455' }}>
+            <div className="text-3xl mb-1">{s.icon}</div>
             <div className="text-3xl font-industrial font-bold text-red-400 mb-1">{s.value}</div>
-            <div className="text-xs text-gray-400">{s.label}</div>
+            <div className="text-xs text-gray-300">{s.label}</div>
           </motion.div>
         ))}
       </div>
-
-      <motion.div className="glass rounded-2xl p-5 flex-1" {...fadeUp} transition={{ delay: 0.4 }}>
-        <div className="text-xs text-gray-500 uppercase tracking-widest font-industrial mb-4">Efeito Cascata de uma Falha Elétrica</div>
+      <motion.div className="glass rounded-2xl p-5 max-w-4xl" {...fadeUp} transition={{ delay: 0.4 }} style={{ borderColor: '#ef444433' }}>
+        <div className="text-xs text-gray-400 uppercase tracking-widest font-industrial mb-3">Efeito cascata de uma falha</div>
         <div className="flex items-center gap-2 flex-wrap">
           {slide.cascade.map((step, i) => (
             <div key={i} className="flex items-center gap-2">
-              <div className="glass rounded-lg px-3 py-2 text-xs font-industrial"
-                style={{ borderColor: `rgba(239,68,68,${0.2 + i * 0.12})`, color: `rgba(239,${200 - i * 30},${200 - i * 30},1)` }}>
-                {step}
-              </div>
-              {i < slide.cascade.length - 1 && (
-                <span className="text-red-500 text-lg">→</span>
-              )}
+              <div className="glass rounded-lg px-3 py-2 text-xs font-industrial" style={{ borderColor: `rgba(239,68,68,${0.25 + i * 0.12})`, color: `rgb(239,${190 - i * 25},${190 - i * 25})` }}>{step}</div>
+              {i < slide.cascade.length - 1 && <span className="text-red-500">→</span>}
             </div>
           ))}
         </div>
@@ -442,20 +337,17 @@ function ImportanceSlide({ slide }) {
   )
 }
 
+// ---------------- FERRAMENTAS ----------------
 function ToolsSlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
-      </motion.div>
-
-      <div className="grid grid-cols-3 gap-4 flex-1">
+    <div className="h-full w-full flex flex-col justify-center p-6 md:p-10 gap-5">
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <div className="grid grid-cols-3 gap-3 max-w-4xl">
         {slide.tools.map((t, i) => (
           <motion.div key={i} className="glass rounded-xl p-4" {...fadeUp} transition={{ delay: i * 0.08 }}>
             <div className="text-3xl mb-2">{t.icon}</div>
-            <div className="font-industrial font-bold text-white mb-2">{t.name}</div>
-            <div className="text-xs text-gray-400 leading-relaxed">{t.desc}</div>
+            <div className="font-industrial font-bold text-white mb-1">{t.name}</div>
+            <div className="text-xs text-gray-300">{t.desc}</div>
           </motion.div>
         ))}
       </div>
@@ -463,91 +355,63 @@ function ToolsSlide({ slide }) {
   )
 }
 
+// ---------------- SEGURANÇA NR-10 ----------------
 function SafetySlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-5 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
+    <div className="h-full w-full flex flex-col justify-center p-6 md:p-10 gap-4">
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <motion.div className="glass-orange rounded-xl p-3 max-w-3xl" {...fadeUp} transition={{ delay: 0.1 }}>
+        <p className="text-sm text-orange-200">{slide.norma}</p>
       </motion.div>
-
-      <motion.div className="glass-orange rounded-2xl p-4" {...fadeUp} transition={{ delay: 0.1 }}>
-        <p className="text-sm text-neon-orange leading-relaxed">{slide.norma}</p>
-      </motion.div>
-
-      <div className="grid grid-cols-2 gap-4 flex-1">
+      <div className="grid grid-cols-2 gap-4 max-w-4xl">
         <motion.div className="glass rounded-2xl p-5" {...fadeUp} transition={{ delay: 0.2 }}>
-          <div className="text-xs text-gray-500 uppercase tracking-widest font-industrial mb-3">Requisitos NR-10</div>
+          <div className="text-xs text-gray-400 uppercase tracking-widest font-industrial mb-2">Requisitos</div>
           {slide.requirements.map((r, i) => (
-            <div key={i} className="flex items-center gap-2 py-2 border-b border-white/5 last:border-0">
-              <span className="text-lg">{r.icon}</span>
-              <span className="text-sm text-gray-300">{r.label}</span>
+            <div key={i} className="flex items-center gap-2 py-1.5 border-b border-white/5 last:border-0">
+              <span className="text-lg">{r.icon}</span><span className="text-sm text-gray-200">{r.label}</span>
             </div>
           ))}
         </motion.div>
-
-        <motion.div className="glass rounded-2xl p-5 flex flex-col gap-4" {...fadeUp} transition={{ delay: 0.3 }}>
-          <div className="text-xs text-gray-500 uppercase tracking-widest font-industrial mb-1">Zonas de Risco Elétrico</div>
+        <motion.div className="glass rounded-2xl p-5 flex flex-col gap-3" {...fadeUp} transition={{ delay: 0.3 }}>
+          <div className="text-xs text-gray-400 uppercase tracking-widest font-industrial">Zonas de risco</div>
           {slide.zones.map((z, i) => (
-            <div key={i} className="glass rounded-xl p-3" style={{ borderColor: `${z.color}44` }}>
+            <div key={i} className="glass rounded-xl p-3" style={{ borderColor: `${z.color}55` }}>
               <div className="flex justify-between items-center">
                 <span className="font-industrial font-bold text-sm" style={{ color: z.color }}>{z.name}</span>
-                <span className="text-xs text-gray-500 font-industrial">{z.desc}</span>
-              </div>
-              <div className="mt-2 h-2 bg-gray-800 rounded-full overflow-hidden">
-                <div className="h-full rounded-full" style={{ width: `${(3 - i) * 33}%`, background: z.color, opacity: 0.7 }} />
+                <span className="text-xs text-gray-400 font-industrial">{z.desc}</span>
               </div>
             </div>
           ))}
-          <div className="text-xs text-gray-500 mt-2">
-            ⚡ Equipamentos acima de 1000V = Alta tensão (AT)<br/>
-            ⚡ Abaixo de 1000V = Baixa tensão (BT)
-          </div>
         </motion.div>
       </div>
     </div>
   )
 }
 
+// ---------------- ROI ----------------
 function RoiSlide({ slide }) {
   return (
-    <div className="h-full w-full flex flex-col p-10 gap-6 grid-bg overflow-auto">
-      <motion.div {...fadeUp}>
-        <SectionBadge section={slide.section} accent={slide.accent} />
-        <h2 className="text-4xl font-industrial font-bold text-white">{slide.title}</h2>
-      </motion.div>
-
-      <div className="grid grid-cols-2 gap-6 flex-1">
+    <div className="h-full w-full flex flex-col justify-center p-6 md:p-10 gap-4">
+      <motion.div {...fadeUp}><Badge slide={slide} /><Title slide={slide}>{slide.title}</Title></motion.div>
+      <div className="grid grid-cols-2 gap-4 max-w-4xl">
         {slide.comparison.map((c, i) => (
-          <motion.div
-            key={i}
-            className="glass rounded-2xl p-6 flex flex-col gap-3"
-            {...fadeUp}
-            transition={{ delay: i * 0.2 }}
-            style={{ borderColor: `${c.color}33`, boxShadow: `0 0 30px ${c.color}11` }}
-          >
+          <motion.div key={i} className="glass rounded-2xl p-5 flex flex-col gap-2" {...fadeUp} transition={{ delay: i * 0.2 }}
+            style={{ borderColor: `${c.color}55`, boxShadow: `0 0 30px ${c.color}22` }}>
             <div className="font-industrial font-bold text-lg" style={{ color: c.color }}>{c.scenario}</div>
-            <div className="space-y-2 flex-1">
-              {c.items.map((item, j) => (
+            <div className="space-y-1.5 flex-1">
+              {c.items.map((it, j) => (
                 <div key={j} className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ background: c.color }} />
-                  <span className="text-sm text-gray-300">{item}</span>
+                  <span className="text-sm text-gray-200">{it}</span>
                 </div>
               ))}
             </div>
-            <div className="glass rounded-xl p-3 text-center font-industrial font-bold" style={{ color: c.color, borderColor: `${c.color}33` }}>
-              {c.total}
-            </div>
+            <div className="glass rounded-lg p-2.5 text-center font-industrial font-bold" style={{ color: c.color }}>{c.total}</div>
           </motion.div>
         ))}
       </div>
-
-      <motion.div
-        className="glass rounded-2xl p-5 text-center"
-        {...fadeUp}
-        transition={{ delay: 0.4 }}
-        style={{ borderColor: '#00ff8844', boxShadow: '0 0 20px rgba(0,255,136,0.1)' }}
-      >
+      <motion.div className="glass rounded-xl p-4 text-center max-w-4xl" {...fadeUp} transition={{ delay: 0.4 }}
+        style={{ borderColor: '#00ff8855', boxShadow: '0 0 20px #00ff8822' }}>
         <div className="text-xl font-industrial font-bold text-neon-green">{slide.conclusion}</div>
       </motion.div>
     </div>
