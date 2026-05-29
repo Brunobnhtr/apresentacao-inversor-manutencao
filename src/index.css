@@ -24,15 +24,20 @@
 
 @layer utilities {
   .glass {
-    background: rgba(13, 13, 43, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 212, 255, 0.15);
+    background: rgba(8, 10, 26, 0.46);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(0, 212, 255, 0.18);
   }
 
   .glass-orange {
-    background: rgba(43, 13, 0, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 107, 0, 0.25);
+    background: rgba(30, 12, 0, 0.46);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 107, 0, 0.28);
+  }
+
+  /* GPU hint sem prop style (pro React não sobrescrever o transform do GSAP) */
+  .gpu {
+    will-change: transform, opacity;
   }
 
   .text-electric {

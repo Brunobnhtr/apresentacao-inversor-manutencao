@@ -5,11 +5,11 @@ const CYAN = '#00d4ff'
 const ORANGE = '#ff6b00'
 const GREEN = '#00ff88'
 
-// Wrapper para posicionar a hero no centro-baixo da cena
+// Wrapper para posicionar a hero no lado DIREITO-baixo (deixa o texto à esquerda visível)
 function HeroStage({ children, w = 520, scale = 1 }) {
   return (
-    <div className="absolute inset-0 flex items-end justify-center pb-10 pointer-events-none">
-      <svg viewBox={`0 0 ${w} 380`} width={w * scale} height={380 * scale} style={{ maxWidth: '60vw', maxHeight: '52vh' }}>
+    <div className="absolute inset-0 flex items-end justify-end pb-12 pr-[4%] pointer-events-none">
+      <svg viewBox={`0 0 ${w} 380`} width={w * scale} height={380 * scale} style={{ maxWidth: '46vw', maxHeight: '56vh' }}>
         {children}
       </svg>
     </div>
