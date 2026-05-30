@@ -149,7 +149,7 @@ function Preview({ slide, dir, simData, onSimUpdate }) {
       <div className="relative w-full h-full">
         <div ref={innerRef} className="absolute left-1/2 top-1/2 overflow-hidden rounded-xl border border-white/10"
           style={{ width: 1280, height: 720, transformOrigin: 'center center' }}>
-          <CameraStage slide={slide} dir={dir} isAdmin={true} simData={simData} onSimUpdate={onSimUpdate} />
+          <CameraStage slide={slide} dir={dir} isAdmin={true} lite simData={simData} onSimUpdate={onSimUpdate} />
         </div>
       </div>
     </div>

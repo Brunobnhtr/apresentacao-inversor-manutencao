@@ -46,7 +46,7 @@ export default function Viewer() {
 
       {/* Palco */}
       <div className="flex-1 relative overflow-hidden">
-        <CameraStage slide={slide} dir={dir} isAdmin={false} simData={state.simData} onSimUpdate={() => {}} />
+        <CameraStage slide={slide} index={idx} dir={dir} isAdmin={false} simData={state.simData} onSimUpdate={() => {}} />
       </div>
 
       {/* Barra de progresso */}
